@@ -1,14 +1,37 @@
 {
-  "name": "@deepseek-ai/dsh-tool-see-image",
+  "name": "dsh-tool-see-image",
   "version": "0.1.0",
-  "description": "see_image tool: route image files to a configurable vision model (OpenAI-compatible API) and relay its description back to a text-only model",
+  "description": "see_image tool for DSH: route image files to a configurable vision model (OpenAI-compatible API) and relay its description back to a text-only model",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
     ".": "./lib/index.js",
     "./package.json": "./package.json"
   },
+  "files": [
+    "lib",
+    "README.md",
+    "README.zh.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "dsh",
+    "deepseek",
+    "vision",
+    "image",
+    "see-image",
+    "glm-4v",
+    "plugin"
+  ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gugu123a/dsh-tool-see-image.git"
+  },
+  "bugs": {
+    "url": "https://github.com/gugu123a/dsh-tool-see-image/issues"
+  },
+  "homepage": "https://github.com/gugu123a/dsh-tool-see-image#readme",
   "peerDependencies": {
     "@deepseek-ai/cordis": "^4.0.1",
     "@deepseek-ai/dsh-tools": "^0.1.0-rc.6"

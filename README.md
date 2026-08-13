@@ -1,39 +1,41 @@
 # dsh-tool-see-image
 
-让**没有视觉能力的文本模型**（如 deepseek-v4-flash）也能"看图"：把图片文件通过
-`see_image` 工具发给一个可配置的**视觉模型**（默认智谱 GLM-4V-Flash，免费），
-视觉模型看完后用文字转述回来，文本模型再把它原样汇报给你。
+Give a **text-only model** (e.g. `deepseek-v4-flash`) the ability to **"see" images**:
+the `see_image` tool sends an image file to a configurable **vision model**
+(default: Zhipu GLM-4V-Flash, free), which describes it in text; the text-only
+model relays that description back to you.
 
-## 工作原理
+## How it works
 
 ```
-你: "看看这张图"  ──►  文本模型 (无视觉)
-                          │ 调用 see_image(path, question)
-                          ▼
-                     本插件 (Host 平面)
-                          │ 1. ctx.fs 解析并读取图片（遵守沙箱/观察策略）
-                          │ 2. 图片转 base64 data URL
-                          │ 3. POST {baseURL}/chat/completions（OpenAI 兼容）
-                          ▼
-                     视觉模型 (GLM-4V-Flash)
-                          │ 文字描述
-                          ▼
-                     文本模型 ──► 汇报给你
+You: "Look at this image" ──►  Text-only model (no vision)
+                                  │ calls see_image(path, question)
+                                  ▼
+                             This plugin (Host plane)
+                                  │ 1. ctx.fs resolves & reads the image (sandbox/observation policy aware)
+                                  │ 2. encodes it as a base64 data URL
+                                  │ 3. POST {baseURL}/chat/completions (OpenAI-compatible)
+                                  ▼
+                             Vision model (GLM-4V-Flash)
+                                  │ text description
+                                  ▼
+                             Text-only model ──► reports to you
 ```
 
-## 安装（DSH web profile）
+## Install (DSH web profile)
 
-1. **拷贝插件**：把本仓库放进你的 profile 目录，例如
+1. **Copy the plugin** into your profile directory, e.g.
    `$DSH_HOME/profiles/web/plugins/dsh-tool-see-image/`
-   （在 DSH 中，`$DSH_HOME` 通常是 `~/.dsh`）
+   (`$DSH_HOME` is usually `~/.dsh`).
 
-2. **声明依赖**：在 `$DSH_HOME/profiles/web/package.json` 的 `dependencies` 中加入：
+2. **Declare the dependency** in `$DSH_HOME/profiles/web/package.json`:
    ```json
    "@deepseek-ai/dsh-tool-see-image": "file:plugins/dsh-tool-see-image"
    ```
-   然后 `pnpm install`（会在 `profiles/node_modules` 下生成指向源码的 junction 链接）。
+   Then run `pnpm install` (creates a junction to the source under
+   `profiles/node_modules`).
 
-3. **组合进配置**：在 `$DSH_HOME/profiles/web/cordis.patch.yml` 中加入：
+3. **Compose it into the profile** in `$DSH_HOME/profiles/web/cordis.patch.yml`:
    ```yaml
    - insert:
        - id: tool-see-image
@@ -44,32 +46,32 @@
            model: glm-4v-flash
    ```
 
-4. **设置 API Key**：去 [bigmodel.cn](https://bigmodel.cn) 控制台 → API Keys
-   创建一个 Key（形如 `id.secret`），然后设置环境变量（Windows 示例）：
+4. **Set your API key**: create one at the [Zhipu (bigmodel) console](https://bigmodel.cn)
+   (format `id.secret`), then set the environment variable (Windows example):
    ```powershell
-   setx ZHIPU_API_KEY "你的key"
+   setx ZHIPU_API_KEY "your-key"
    ```
-   **重开终端**，然后**重启 dsh web**（web profile 的补丁热重载官方尚未启用，
-   改 patch 后仅靠 watcher 不会生效——已实测）。
+   **Restart your terminal**, then **restart `dsh web`** (the web profile does not
+   hot-reload patch layers yet — tested).
 
-5. **验证**：新会话里工具列表应出现 `see_image`。让它"看"一张图试试：
+5. **Verify**: in a new session the `see_image` tool should appear. Try it:
    ```
-   请用 see_image 看一下 path/to/your/image.png
+   Use see_image to look at path/to/your/image.png
    ```
 
-## 配置项（cordis.patch.yml 的 tool-see-image 行）
+## Configuration (tool-see-image line in cordis.patch.yml)
 
-| 键 | 默认值 | 说明 |
+| Key | Default | Description |
 | --- | --- | --- |
-| `baseURL` | `https://open.bigmodel.cn/api/paas/v4` | OpenAI 兼容端点，插件自动拼 `/chat/completions` |
-| `apiKeyEnv` | `ZHIPU_API_KEY` | 读取 API Key 的环境变量名 |
-| `model` | `glm-4v-flash` | 视觉模型 id（智谱免费） |
-| `maxTokens` | `1024` | 输出上限。**注意：glm-4v-flash 上限为 1024**（实测超限会返回 400 `max_tokens参数非法`）；换更大模型可调大 |
-| `timeoutMs` | `60000` | 请求超时 |
-| `maxBytes` | `15728640` (15MB) | 单张图片大小上限 |
-| `prompt` | （中文详细描述指令） | 缺省问题；`question` 参数优先 |
+| `baseURL` | `https://open.bigmodel.cn/api/paas/v4` | OpenAI-compatible endpoint; the plugin appends `/chat/completions` |
+| `apiKeyEnv` | `ZHIPU_API_KEY` | Env var name that holds the API key |
+| `model` | `glm-4v-flash` | Vision model id (free on Zhipu) |
+| `maxTokens` | `1024` | Max output tokens. **Note: glm-4v-flash caps at 1024** (higher returns 400 `max_tokens参数非法`; raise it if you switch to a bigger model) |
+| `timeoutMs` | `60000` | Request timeout |
+| `maxBytes` | `15728640` (15MB) | Per-image size limit |
+| `prompt` | (Chinese detailed-description instruction) | Default question; the `question` argument takes precedence |
 
-换其他视觉 API 只需改这三项，例如 SiliconFlow：
+To use a different vision API, change these three keys, e.g. SiliconFlow:
 
 ```yaml
 config:
@@ -78,42 +80,51 @@ config:
   model: Qwen/Qwen2.5-VL-32B-Instruct
 ```
 
-## 卸载 / 回滚
+## Uninstall / rollback
 
-1. 删掉 `cordis.patch.yml` 里的 `- insert: ... tool-see-image ...` 段；
-2. 删掉 junction：`Remove-Item profiles\node_modules\@deepseek-ai\dsh-tool-see-image`；
-3. 删掉 `profiles/web/package.json` dependencies 里那一行；
-4. 重启 `dsh web`。
+1. Remove the `- insert: ... tool-see-image ...` block from `cordis.patch.yml`;
+2. Remove the junction: `Remove-Item profiles\node_modules\@deepseek-ai\dsh-tool-see-image`;
+3. Remove that line from `profiles/web/package.json` dependencies;
+4. Restart `dsh web`.
 
-## 实现要点（供学习插件开发）
+## Implementation notes (for plugin developers)
 
-- 导出 `{ name, inject, Config, apply }`，与所有 DSH 工具插件同构；
-- `inject: ["tools", "fs"]`：工具注册表 + 沙箱化文件服务都是 Host 全局服务；
-- 注册进全局层 → 所有会话可见（与 TUI 模式 host 工具行同理）；
-- 读文件走 `ctx.fs`（自动应用沙箱/观察策略），不用裸 `node:fs`；
-- 参数 schema 用 DSH 专用格式：`required: true` 显式必填，可选参数**省略 required 键**
-  （`required: false` 会被 defineTool 拒绝）；
-- 网络请求带超时与 `exec.signal` 取消；错误信息面向模型可读。
+- Exports `{ name, inject, Config, apply }`, same shape as every DSH tool plugin;
+- `inject: ["tools", "fs"]` — the tool registry and the sandboxed file service
+  are both Host-global services;
+- Registered at the global layer, so every session sees it (same as TUI-mode
+  host tool rows);
+- Reads files through `ctx.fs` (sandbox/observation policy applied), never raw
+  `node:fs`;
+- Parameter schema uses the DSH-specific format: `required: true` for required,
+  **omit the `required` key** for optional (`required: false` is rejected by
+  `defineTool`);
+- Network request carries a timeout and `exec.signal` cancellation; errors are
+  model-readable.
 
-## 回归测试
+## Regression test
 
-`test/mount-test.mjs`：用真实 Cordis Loader 挂载本插件行（timer + system-prompt +
-tools + 本插件），验证行激活且 `see_image` 进入工具注册表。运行：
+`test/mount-test.mjs` mounts this plugin line under a real Cordis Loader
+(timer + system-prompt + tools + this plugin) and asserts that `see_image`
+lands in the tool registry. Run:
 
 ```powershell
-set DSH_CHECKOUT=<你的 dsh 安装根目录，含 node_modules/@deepseek-ai>
+set DSH_CHECKOUT=<your dsh install root, containing node_modules/@deepseek-ai>
 node test/mount-test.mjs
 ```
 
-期望输出：`tools.schemas() 含 see_image: true` 与 `=== MOUNT TEST PASS ===`。
-脚本会自动把插件临时链接进 checkout 的 node_modules（Windows junction / 其它平台
-symlink），测试结束自动清理，无本机路径硬编码。
+Expected output: `tools.schemas() 含 see_image: true` and `=== MOUNT TEST PASS ===`.
+The script temporarily links the plugin into the checkout's node_modules
+(Windows junction / other-platform symlink) and cleans up afterwards — no
+hardcoded local paths.
 
-## 实测记录
+## Field notes
 
-- 2026-08-13：真实 Key + `triz-workflow.png`（DSH Web GUI 截图）→ HTTP 200，约 6.8s，
-  准确识别界面文字（搜索框/MCP 设置/Fetch/Filesystem/Sequential-Thinking）。
-- 踩坑：glm-4v-flash 的 `max_tokens` 上限 1024（默认 2048 会 400，已修正默认值）。
+- 2026-08-13: real key + `triz-workflow.png` (a DSH Web GUI screenshot) →
+  HTTP 200 in ~6.8s, correctly read the UI text (search box / MCP settings /
+  Fetch / Filesystem / Sequential-Thinking).
+- Pitfall: glm-4v-flash's `max_tokens` cap is 1024 (the default of 2048 caused
+  a 400; the default has been fixed).
 
 ## License
 

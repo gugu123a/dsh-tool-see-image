@@ -1,0 +1,31 @@
+name: test
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+jobs:
+  mount-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20, 22]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      # Install dsh into a temp checkout so the mount test can resolve
+      # @deepseek-ai/dsh-app-boot and friends from real node_modules.
+      - name: Install dsh (for @deepseek-ai packages)
+        run: |
+          npm install --prefix /tmp/dsh-checkout @deepseek-ai/dsh@latest
+          echo "DSH_CHECKOUT=/tmp/dsh-checkout" >> "$GITHUB_ENV"
+
+      - name: Run mount regression test
+        run: node test/mount-test.mjs
+        env:
+          DSH_CHECKOUT: /tmp/dsh-checkout
