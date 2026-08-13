@@ -1,0 +1,16 @@
+{
+  "name": "@deepseek-ai/dsh-tool-see-image",
+  "version": "0.1.0",
+  "description": "see_image tool: route image files to a configurable vision model (OpenAI-compatible API) and relay its description back to a text-only model",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./package.json": "./package.json"
+  },
+  "license": "MIT",
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.1",
+    "@deepseek-ai/dsh-tools": "^0.1.0-rc.6"
+  }
+}
