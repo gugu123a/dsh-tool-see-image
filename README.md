@@ -1,5 +1,7 @@
 # dsh-tool-see-image
 
+Glad to make a plugin for #deepseekharness （or #dsh）.
+
 Give a **text-only model** (e.g. `deepseek-v4-flash`) the ability to **"see" images**:
 the `see_image` tool sends an image file to a configurable **vision model**
 (default: Zhipu GLM-4V-Flash, free), which describes it in text; the text-only
