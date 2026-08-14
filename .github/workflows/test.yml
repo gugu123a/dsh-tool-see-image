@@ -18,14 +18,24 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      # Install dsh into a temp checkout so the mount test can resolve
-      # @deepseek-ai packages from real node_modules.
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      # Install dsh into a temp checkout so the mount test can resolve every
+      # @deepseek-ai package (dsh-app-boot, cordis-plugin-timer,
+      # dsh-system-prompt, dsh-tools, etc.) from real node_modules.
+      # shamefully-hoist: lift all transitive deps to the top-level
+      # node_modules so the test's bareModuleBaseUrl resolves them directly
+      # (npm's --legacy-peer-deps leaves peer deps missing, breaking the
+      # loader's transitive imports).
       - name: Install dsh (for @deepseek-ai packages)
         run: |
           mkdir -p /tmp/dsh-checkout
           cd /tmp/dsh-checkout
-          npm init -y >/dev/null
-          npm install @deepseek-ai/dsh@latest @deepseek-ai/cordis-plugin-timer@latest @deepseek-ai/dsh-system-prompt@latest @deepseek-ai/dsh-tools@latest
+          pnpm config set shamefully-hoist true
+          pnpm init >/dev/null 2>&1 || true
+          pnpm add @deepseek-ai/dsh@latest
           echo "DSH_CHECKOUT=/tmp/dsh-checkout" >> "$GITHUB_ENV"
 
       - name: Run mount regression test
