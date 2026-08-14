@@ -27,12 +27,13 @@ const pkgLink = join(pkgScopeDir, "dsh-tool-see-image");
 mkdirSync(pkgScopeDir, { recursive: true });
 let linked = false;
 try {
-  if (!process.platform.startsWith("win") && process.getuid?.() === 0) {
-    symlinkSync(pluginRoot, pkgLink, "dir");
-  } else {
+  if (process.platform.startsWith("win")) {
     // Windows junction（目录符号链接无需管理员权限）
     const { execFileSync } = await import("node:child_process");
     execFileSync("cmd", ["/c", "mklink", "/J", pkgLink, pluginRoot], { stdio: "ignore" });
+  } else {
+    // Linux / macOS / CI：普通 symlink
+    symlinkSync(pluginRoot, pkgLink, "dir");
   }
   linked = true;
 } catch (e) {
