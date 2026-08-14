@@ -1,6 +1,6 @@
 {
   "name": "dsh-tool-see-image",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "see_image tool for DSH: route image files to a configurable vision model (OpenAI-compatible API) and relay its description back to a text-only model",
   "type": "module",
   "main": "lib/index.js",
@@ -10,6 +10,7 @@
   },
   "files": [
     "lib",
+    "scripts",
     "README.md",
     "README.zh.md",
     "LICENSE"
