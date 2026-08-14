@@ -122,6 +122,25 @@ symlink），测试结束自动清理，无本机路径硬编码。
   准确识别界面文字（搜索框/MCP 设置/Fetch/Filesystem/Sequential-Thinking）。
 - 踩坑：glm-4v-flash 的 `max_tokens` 上限 1024（默认 2048 会 400，已修正默认值）。
 
+## 粘贴图片自动转文字（附带功能）
+
+除了 `see_image` 工具（按**路径**看图），本仓库还附带一个**补丁脚本**，
+让你能直接在聊天框**粘贴图片**并自动转成文字：
+
+```powershell
+node scripts/patch-dsh-image-relay.mjs          # 应用（幂等，自动备份）
+node scripts/patch-dsh-image-relay.mjs --check  # 检查状态
+node scripts/patch-dsh-image-relay.mjs --revert # 回滚
+pm2 restart dsh-web                              # 重启后硬刷新浏览器
+```
+
+它补丁三个 DSH 包（host-apiproxy、llm-deepseek、client-ui），实现：
+- 界面显示粘贴的图片（hidden 文字块被前端过滤，用户看不到描述）；
+- DeepSeek 收到的是 GLM-4V-Flash 生成的 `【图片：...】` 描述而非原始像素；
+- 相同图片命中本地缓存（`~/.dsh/cache/image-relay/`），失败 8 秒内优雅降级。
+
+需要 `ZHIPU_API_KEY`。**注意：`npx` 升级 dsh 后需重新运行脚本**——npm 缓存刷新会丢失补丁。
+
 ## License
 
 MIT

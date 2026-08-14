@@ -133,6 +133,28 @@ hardcoded local paths.
 - Pitfall: glm-4v-flash's `max_tokens` cap is 1024 (the default of 2048 caused
   a 400; the default has been fixed).
 
+## Paste-to-text relay (bonus)
+
+Beyond the `see_image` tool (which reads an image *by path*), this repo ships a
+**patch script** that lets you **paste images straight into the chat box** and
+have them auto-converted to text:
+
+```powershell
+node scripts/patch-dsh-image-relay.mjs          # apply (idempotent, auto-backup)
+node scripts/patch-dsh-image-relay.mjs --check  # status
+node scripts/patch-dsh-image-relay.mjs --revert # rollback
+pm2 restart dsh-web                              # then hard-refresh the browser
+```
+
+It patches three DSH packages (host-apiproxy, llm-deepseek, client-ui) so that:
+- the UI shows the pasted image (the hidden text block is filtered out);
+- DeepSeek receives a `【图片：...】` description from GLM-4V-Flash instead of raw pixels;
+- repeated images hit a local cache (`~/.dsh/cache/image-relay/`), and failures
+  degrade gracefully within 8s.
+
+Requires `ZHIPU_API_KEY`. **Re-run the script after any `npx` dsh upgrade** —
+the patch is lost when the npm cache is refreshed.
+
 ## License
 
 MIT
