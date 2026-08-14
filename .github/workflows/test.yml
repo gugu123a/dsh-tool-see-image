@@ -28,12 +28,14 @@ jobs:
       # shamefully-hoist: lift all transitive deps to the top-level
       # node_modules so the test's bareModuleBaseUrl resolves them directly
       # (npm's --legacy-peer-deps leaves peer deps missing, breaking the
-      # loader's transitive imports).
+      # loader's transitive imports). Written as a local .npmrc so it
+      # definitely applies to this checkout (pnpm config set writes the user
+      # scope and can be missed under a fresh HOME).
       - name: Install dsh (for @deepseek-ai packages)
         run: |
           mkdir -p /tmp/dsh-checkout
           cd /tmp/dsh-checkout
-          pnpm config set shamefully-hoist true
+          echo "shamefully-hoist=true" > .npmrc
           pnpm init >/dev/null 2>&1 || true
           pnpm add @deepseek-ai/dsh@latest
           echo "DSH_CHECKOUT=/tmp/dsh-checkout" >> "$GITHUB_ENV"
