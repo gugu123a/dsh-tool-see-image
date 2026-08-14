@@ -2,6 +2,11 @@
 
 > [English](README.md) | 中文
 
+[![npm version](https://img.shields.io/npm/v/dsh-tool-see-image)](https://www.npmjs.com/package/dsh-tool-see-image)
+[![npm downloads](https://img.shields.io/npm/dm/dsh-tool-see-image)](https://www.npmjs.com/package/dsh-tool-see-image)
+[![npm license](https://img.shields.io/npm/l/dsh-tool-see-image)](https://www.npmjs.com/package/dsh-tool-see-image)
+[![CI](https://github.com/gugu123a/dsh-tool-see-image/actions/workflows/test.yml/badge.svg)](https://github.com/gugu123a/dsh-tool-see-image/actions/workflows/test.yml)
+
 让**没有视觉能力的文本模型**（如 deepseek-v4-flash）也能"看图"：把图片文件通过
 `see_image` 工具发给一个可配置的**视觉模型**（默认智谱 GLM-4V-Flash，免费），
 视觉模型看完后用文字转述回来，文本模型再把它原样汇报给你。

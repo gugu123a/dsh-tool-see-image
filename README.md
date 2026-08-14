@@ -1,5 +1,10 @@
 # dsh-tool-see-image
 
+[![npm version](https://img.shields.io/npm/v/dsh-tool-see-image)](https://www.npmjs.com/package/dsh-tool-see-image)
+[![npm downloads](https://img.shields.io/npm/dm/dsh-tool-see-image)](https://www.npmjs.com/package/dsh-tool-see-image)
+[![npm license](https://img.shields.io/npm/l/dsh-tool-see-image)](https://www.npmjs.com/package/dsh-tool-see-image)
+[![CI](https://github.com/gugu123a/dsh-tool-see-image/actions/workflows/test.yml/badge.svg)](https://github.com/gugu123a/dsh-tool-see-image/actions/workflows/test.yml)
+
 Glad to make a plugin for #deepseekharness （or #dsh）.
 
 Give a **text-only model** (e.g. `deepseek-v4-flash`) the ability to **"see" images**:
